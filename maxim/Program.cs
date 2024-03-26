@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace maxim
 {
@@ -25,10 +26,28 @@ namespace maxim
             }
         }
 
+        static void CheckString(string str)
+        {
+            try
+            {
+                var invalidChars = str.Where(c => !char.IsLower(c) || c < 'a' || c > 'z').Distinct().ToArray();
+                if (invalidChars.Any())
+                {
+                    throw new Exception($"Ошибка: введены неподходящие символы: {string.Join(", ", invalidChars)}. Допустимы только буквы английского алфавита в нижнем регистре.");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                
+            }
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Введите строку:");
             string input = Console.ReadLine();
+            CheckString(input);
             string processedString = StringProcess(input);
             Console.WriteLine("Обработанная строка: " + processedString);
         }
