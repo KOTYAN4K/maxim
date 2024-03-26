@@ -26,7 +26,7 @@ namespace maxim
             }
         }
 
-        static void CheckString(string str)
+        static bool CheckString(string str)
         {
             try
             {
@@ -35,21 +35,25 @@ namespace maxim
                 {
                     throw new Exception($"Ошибка: введены неподходящие символы: {string.Join(", ", invalidChars)}. Допустимы только буквы английского алфавита в нижнем регистре.");
                 }
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                
+                return false;
             }
+            
         }
 
         static void Main(string[] args)
         {
             Console.WriteLine("Введите строку:");
             string input = Console.ReadLine();
-            CheckString(input);
-            string processedString = StringProcess(input);
-            Console.WriteLine("Обработанная строка: " + processedString);
+            if (CheckString(input))
+            {
+                string processedString = StringProcess(input);
+                Console.WriteLine("Обработанная строка: " + processedString);
+            }
         }
     }
 }
