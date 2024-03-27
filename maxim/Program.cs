@@ -6,7 +6,7 @@ namespace maxim
 {
     internal class Program
     {
-        static string StringProcess(string str, out Dictionary<char, int> characterCounts, out string longestVowelSubstring)
+        static string StringProcess(string str, out Dictionary<char, int> characterCounts, out string longestVowelSubstring,out string sortedString, string sortAlgorithm)
         {
             string processedString = "";
             if (str.Length % 2 == 0)
@@ -27,9 +27,34 @@ namespace maxim
                 processedString = new string(strArray) + str;
             }
 
+            // Подсчет количества символов
             characterCounts = CountChars(processedString);
+
+            // Поиск самой длинной подстроки, начинающейся и заканчивающейся на гласную
             longestVowelSubstring = LongestSubstring(processedString);
+
+            // Выбор алгоритма сортировки
+            if (sortAlgorithm.ToLower() == "quicksort")
+                sortedString = QuickSort(processedString);
+            else if (sortAlgorithm.ToLower() == "treesort")
+                sortedString = TreeSort(processedString);
+            else
+                sortedString = processedString; // Если алгоритм сортировки неизвестен, возвращаем исходную строку
+
             return processedString;
+        }
+
+        private static string TreeSort(string processedString)
+        {
+            SortedSet<char> charSet = new SortedSet<char>(processedString);
+            return string.Join("", charSet);
+        }
+
+        private static string QuickSort(string processedString)
+        {
+            char[] charArray = processedString.ToCharArray();
+            Array.Sort(charArray);
+            return new string(charArray);
         }
 
         static bool CheckString(string str)
@@ -89,26 +114,36 @@ namespace maxim
             return longestSubstring;
         }
 
+        
+
         static void Main(string[] args)
         {
             Console.WriteLine("Введите строку:");
             string input = Console.ReadLine();
+            Console.WriteLine("Выберите алгоритм сортировки (Quicksort или Treesort):");
+            string sortAlgorithm = Console.ReadLine();
+
             Dictionary<char, int> charCount;
             string longestVowelSubstring = "";
+            string sortedString = "";
+
             if (CheckString(input))
             {
-                string processedString = StringProcess(input, out charCount, out longestVowelSubstring);
+                string processedString = StringProcess(input, out charCount, out longestVowelSubstring, out sortedString, sortAlgorithm);
                 Console.WriteLine($"Обработанная строка: {processedString}\n");
                 
                 Console.WriteLine("Информация о количестве повторений каждого символа:");
-                foreach (var kvp in charCount)
+                if (charCount != null)
                 {
-                    Console.WriteLine($"Символ '{kvp.Key}': {kvp.Value} раз(а)");
+                    foreach (var kvp in charCount)
+                    {
+                        Console.WriteLine($"Символ '{kvp.Key}': {kvp.Value} раз(а)");
+                    }
                 }
 
-                
-                Console.WriteLine($"Самая длинная подстрока, начинающаяся и заканчивающаяся на гласную: {longestVowelSubstring}");
-                
+                Console.WriteLine($"\nСамая длинная подстрока, начинающаяся и заканчивающаяся на гласную: {longestVowelSubstring}\n");
+
+                Console.WriteLine($"Отсортированная обработанная строка: {sortedString}\n");
             }
             Console.ReadKey();
         }
