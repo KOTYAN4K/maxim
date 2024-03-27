@@ -6,7 +6,7 @@ namespace maxim
 {
     internal class Program
     {
-        static string StringProcess(string str, out Dictionary<char, int> characterCounts)
+        static string StringProcess(string str, out Dictionary<char, int> characterCounts, out string longestVowelSubstring)
         {
             string processedString = "";
             if (str.Length % 2 == 0)
@@ -28,6 +28,7 @@ namespace maxim
             }
 
             characterCounts = CountChars(processedString);
+            longestVowelSubstring = LongestSubstring(processedString);
             return processedString;
         }
 
@@ -35,7 +36,6 @@ namespace maxim
         {
             try
             {
-                
                 var invalidChars = str.Where(c => !char.IsLower(c) || c < 'a' || c > 'z').Distinct().ToArray();
                 if (invalidChars.Any())
                 {
@@ -63,14 +63,41 @@ namespace maxim
             return characterCounts;
         }
 
+        static string LongestSubstring(string text)
+        {
+            string vowels = "aeiouy";
+            int maxLength = 0;
+            string longestSubstring = "";
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (vowels.Contains(text[i]))
+                {
+                    for (int j = i + 1; j < text.Length; j++)
+                    {
+                        if (vowels.Contains(text[j]))
+                        {
+                            int substringLength = j - i + 1;
+                            if (substringLength > maxLength)
+                            {
+                                maxLength = substringLength;
+                                longestSubstring = text.Substring(i, substringLength);
+                            }
+                        }
+                    }
+                }
+            }
+            return longestSubstring;
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Введите строку:");
             string input = Console.ReadLine();
             Dictionary<char, int> charCount;
+            string longestVowelSubstring = "";
             if (CheckString(input))
             {
-                string processedString = StringProcess(input, out charCount);
+                string processedString = StringProcess(input, out charCount, out longestVowelSubstring);
                 Console.WriteLine($"Обработанная строка: {processedString}\n");
                 
                 Console.WriteLine("Информация о количестве повторений каждого символа:");
@@ -78,6 +105,9 @@ namespace maxim
                 {
                     Console.WriteLine($"Символ '{kvp.Key}': {kvp.Value} раз(а)");
                 }
+
+                
+                Console.WriteLine($"Самая длинная подстрока, начинающаяся и заканчивающаяся на гласную: {longestVowelSubstring}");
                 
             }
             Console.ReadKey();
