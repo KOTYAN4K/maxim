@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace maxim
 {
     internal class Program
     {
-        static string StringProcess(string str)
+        static string StringProcess(string str, out Dictionary<char, int> characterCounts)
         {
+            string processedString = "";
             if (str.Length % 2 == 0)
             {
                 int halfString = str.Length / 2;
@@ -16,20 +18,24 @@ namespace maxim
                 Array.Reverse(firstHalfArray);
                 char[] secondHalfArray = secondSubString.ToCharArray();
                 Array.Reverse(secondHalfArray);
-                return new string(firstHalfArray) + new string(secondHalfArray);
+                processedString = new string(firstHalfArray) + new string(secondHalfArray);
             }
             else
             {
                 char[] strArray = str.ToCharArray();
                 Array.Reverse(strArray);
-                return new string(strArray) + str;
+                processedString = new string(strArray) + str;
             }
+
+            characterCounts = CountChars(processedString);
+            return processedString;
         }
 
         static bool CheckString(string str)
         {
             try
             {
+                
                 var invalidChars = str.Where(c => !char.IsLower(c) || c < 'a' || c > 'z').Distinct().ToArray();
                 if (invalidChars.Any())
                 {
@@ -45,15 +51,36 @@ namespace maxim
             
         }
 
+        static Dictionary<char, int> CountChars(string text)
+        {
+            Dictionary<char, int> characterCounts = new Dictionary<char, int>();
+            foreach (char c in text)
+            {
+                if (characterCounts.ContainsKey(c))
+                    characterCounts[c]++;
+                else characterCounts[c] = 1;
+            }
+            return characterCounts;
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Введите строку:");
             string input = Console.ReadLine();
+            Dictionary<char, int> charCount;
             if (CheckString(input))
             {
-                string processedString = StringProcess(input);
-                Console.WriteLine("Обработанная строка: " + processedString);
+                string processedString = StringProcess(input, out charCount);
+                Console.WriteLine($"Обработанная строка: {processedString}\n");
+                
+                Console.WriteLine("Информация о количестве повторений каждого символа:");
+                foreach (var kvp in charCount)
+                {
+                    Console.WriteLine($"Символ '{kvp.Key}': {kvp.Value} раз(а)");
+                }
+                
             }
+            Console.ReadKey();
         }
     }
 }
