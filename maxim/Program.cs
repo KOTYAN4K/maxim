@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace maxim
 {
     internal class Program
     {
-        static string StringProcess(string str, out Dictionary<char, int> characterCounts, out string longestVowelSubstring,out string sortedString, string sortAlgorithm)
+        static string StringProcess(string str, out Dictionary<char, int> characterCounts, 
+            out string longestVowelSubstring,out string sortedString, string sortAlgorithm)
         {
             string processedString = "";
             if (str.Length % 2 == 0)
@@ -41,6 +44,7 @@ namespace maxim
             else
                 sortedString = processedString; // Если алгоритм сортировки неизвестен, возвращаем исходную строку
 
+            //возврат обработанной строки
             return processedString;
         }
 
@@ -114,9 +118,31 @@ namespace maxim
             return longestSubstring;
         }
 
-        
+        static async Task<int> GetRandomNumber(int max)
+        {
+            Random rnd = new Random();
+            int randomIndex = rnd.Next(0, max);
 
-        static void Main(string[] args)
+            // Если удаленный API недоступен, возвращаем случайное число средствами .NET
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync($"http://www.randomnumberapi.com/api/v1.0/random?min=0&max={max}");
+                if (response.IsSuccessStatusCode)
+                {
+                    string result = await response.Content.ReadAsStringAsync();
+                    randomIndex = int.Parse(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при получении случайного числа через удаленный API: {ex.Message}");
+            }
+
+            return randomIndex;
+        }
+
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Введите строку:");
             string input = Console.ReadLine();
@@ -129,7 +155,8 @@ namespace maxim
 
             if (CheckString(input))
             {
-                string processedString = StringProcess(input, out charCount, out longestVowelSubstring, out sortedString, sortAlgorithm);
+                string processedString = StringProcess(input, out charCount, out longestVowelSubstring,
+                    out sortedString, sortAlgorithm);
                 Console.WriteLine($"Обработанная строка: {processedString}\n");
                 
                 Console.WriteLine("Информация о количестве повторений каждого символа:");
@@ -144,6 +171,14 @@ namespace maxim
                 Console.WriteLine($"\nСамая длинная подстрока, начинающаяся и заканчивающаяся на гласную: {longestVowelSubstring}\n");
 
                 Console.WriteLine($"Отсортированная обработанная строка: {sortedString}\n");
+
+                // Получение случайного числа
+                int randomIndex = await GetRandomNumber(processedString.Length);
+
+                // Урезание обработанной строки
+                string trimmedString = processedString.Remove(randomIndex, 1);
+
+                Console.WriteLine("Урезанная обработанная строка: " + trimmedString);
             }
             Console.ReadKey();
         }
